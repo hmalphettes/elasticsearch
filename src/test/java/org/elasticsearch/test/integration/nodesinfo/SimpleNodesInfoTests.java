@@ -109,6 +109,7 @@ public class SimpleNodesInfoTests extends AbstractNodesTests {
      * We test here that NodeInfo API with plugin option give us the right results.
      * @throws URISyntaxException
      */
+    // TODO: FIXME
     @Test
     public void testNodeInfoPlugin() throws URISyntaxException {
         // We start four nodes
