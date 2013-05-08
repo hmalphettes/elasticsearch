@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Map;
 
 /**
@@ -49,8 +50,13 @@ public class ResponseHeaderPluginTests extends AbstractNodesTests {
 
     @BeforeMethod
     public void startNode() throws Exception {
+        ClassLoader originalClassloader = Thread.currentThread().getContextClassLoader();
+        ClassLoader newClassloader = new URLClassLoader(new URL[] {}, originalClassloader);
+        Thread.currentThread().setContextClassLoader(newClassloader);
+
         URL resource = ResponseHeaderPluginTests.class.getResource("/org/elasticsearch/test/integration/responseheader/");
         ImmutableSettings.Builder settings = settingsBuilder();
+        settings.classLoader(newClassloader);
         if (resource != null) {
             settings.put("path.plugins", new File(resource.toURI()).getAbsolutePath());
         }
@@ -61,7 +67,11 @@ public class ResponseHeaderPluginTests extends AbstractNodesTests {
 
     @AfterMethod
     public void closeNodes() {
-        closeAllNodes();
+        try {
+            closeAllNodes();
+        } finally {
+            Thread.currentThread().setContextClassLoader(Thread.currentThread().getContextClassLoader().getParent());
+        }
     }
 
     @Test
